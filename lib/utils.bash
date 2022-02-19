@@ -59,9 +59,16 @@ install_version() {
 
   (
     mkdir -p "$install_path"
-    cp -r "$ASDF_DOWNLOAD_PATH"/* "$install_path"
 
-    # TODO: Asert flatc executable exists.
+    cmake -S "$ASDF_DOWNLOAD_PATH" -B "$ASDF_DOWNLOAD_PATH/build" --install-prefix=$install_path \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DFLATBUFFERS_BUILD_TESTS=OFF \
+      -DFLATBUFFERS_BUILD_FLATLIB=OFF \
+      -DFLATBUFFERS_BUILD_FLATHASH=OFF
+    cmake --build "$ASDF_DOWNLOAD_PATH/build"
+    cmake --install "$ASDF_DOWNLOAD_PATH/build"
+
+    # TODO: Assert flatc executable exists.
     local tool_cmd
     tool_cmd="$(echo "$TOOL_TEST" | cut -d' ' -f1)"
     test -x "$install_path/bin/$tool_cmd" || fail "Expected $install_path/bin/$tool_cmd to be executable."
